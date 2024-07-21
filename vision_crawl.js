@@ -1,12 +1,18 @@
+import dotenv from 'dotenv';
+import fs from 'fs';
+import OpenAI from 'openai';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
-import OpenAI from 'openai';
 import readline from 'readline';
-import fs from 'fs';
+
+dotenv.config();
 
 puppeteer.use(StealthPlugin());
 
-const openai = new OpenAI();
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+
 const timeout = 8000;
 
 async function image_to_base64(image_file) {
@@ -208,7 +214,7 @@ In the beginning, go to a direct URL that you think might contain the answer to 
                 "content": [
                     {
                         "type": "image_url",
-                        "image_url": base64_image,
+                        "image_url": { "url": base64_image },
                     },
                     {
                         "type": "text",
@@ -221,7 +227,7 @@ In the beginning, go to a direct URL that you think might contain the answer to 
         }
 
         const response = await openai.chat.completions.create({
-            model: "gpt-4-vision-preview",
+            model: "gpt-4o",
             max_tokens: 1024,
             //seed: 665234,
             messages: messages,
